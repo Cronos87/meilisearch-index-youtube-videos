@@ -26,4 +26,4 @@ By default, YouTube allows **10.000** requests per day.
 
 If you like this project, it is much appreciated :)
 
-[![Buy me a coffee](https://img.buymeacoffee.com/api/?url=aHR0cHM6Ly9pbWcuYnV5bWVhY29mZmVlLmNvbS9hcGkvP25hbWU9Q3Jvbm9zODcmc2l6ZT0zMDAmYmctaW1hZ2U9Ym1jJmJhY2tncm91bmQ9ZmY4MTNm&creator=Cronos87&design_code=1&design_color=%23ff813f&slug=cronos87 "Buy me a coffee")](https://www.buymeacoffee.com/cronos87)
+<a href="https://www.buymeacoffee.com/cronos87" title="Buy me a coffee"><img src="https://img.buymeacoffee.com/api/?url=aHR0cHM6Ly9pbWcuYnV5bWVhY29mZmVlLmNvbS9hcGkvP25hbWU9Q3Jvbm9zODcmc2l6ZT0zMDAmYmctaW1hZ2U9Ym1jJmJhY2tncm91bmQ9ZmY4MTNm&creator=Cronos87&design_code=1&design_color=%23ff813f&slug=cronos87" alt="Buy me a coffee" width="500"></a>
