@@ -4,6 +4,7 @@ import getpass
 from apiclient.discovery import build
 import googleapiclient
 import meilisearch
+import requests
 
 
 class style():
@@ -119,7 +120,7 @@ def get_channels_videos_list(api_key: str, channel_id: str, index_tags=False) ->
     return videos, total_requests
 
 
-def parse_arguments() -> dict:
+def parse_channels_arguments() -> dict:
     """Parse arguments and returns the list of channels."""
     # New index found if true, next iteration
     # the name of the index will be get
@@ -157,16 +158,20 @@ def parse_arguments() -> dict:
     return channels
 
 
-def create_meilisearch_client() -> meilisearch.Client:
+def create_meilisearch_client(address: str) -> meilisearch.Client:
     """Create and returns the instance of MeiliSearch."""
     # Create the instance of MeiliSearch
-    client = meilisearch.Client("http://127.0.0.1:7700")
+    client = meilisearch.Client(address)
 
     # Check if the MeiliSearch server is running
     try:
         client.health()
     except meilisearch.errors.MeiliSearchCommunicationError:
-        print(color("Your MeiliSearch server is not running.", style.RED))
+        print(color("No MeiliSearch server is running at the address \"%s\"."
+                    % address, style.RED))
+        exit()
+    except requests.exceptions.MissingSchema as err:
+        print(color(err, style.RED))
         exit()
 
     return client
@@ -181,15 +186,22 @@ if __name__ == "__main__":
 
     # Ask API Key if not provideed
     if "-k" not in sys.argv:
-        api_key = getpass.getpass(prompt='Please, provid your Youtube API Key: ')
+        api_key = getpass.getpass(
+            prompt='Please, provid your Youtube API Key: ')
     else:
         api_key = sys.argv[sys.argv.index("-k") + 1]
 
+    # Get MeiliSearch client address
+    client_address = "http://127.0.0.1:7700"
+
+    if "-c" in sys.argv:
+        client_address = sys.argv[sys.argv.index("-c") + 1]
+
     # Store channels to index
-    channels = parse_arguments()
+    channels = parse_channels_arguments()
 
     # Create the instance of MeiliSearch
-    client = create_meilisearch_client()
+    client = create_meilisearch_client(client_address)
 
     # Store the total of requests made to the Youtube API
     total_requests = 0
@@ -207,7 +219,7 @@ if __name__ == "__main__":
         index_tags = channel["index_tags"]
 
         # Print the current index
-        print("Indexing %s." % index_name)
+        print("Indexing %s." % color(index_name, style.BLUE))
 
         # Get the index
         meilisearch_index = client.get_or_create_index(index_name)
