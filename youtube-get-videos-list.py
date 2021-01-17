@@ -6,6 +6,8 @@ import googleapiclient
 import meilisearch
 from meilisearch.errors import MeiliSearchApiError
 from requests.exceptions import MissingSchema
+import toml
+from toml.decoder import TomlDecodeError
 
 
 class style():
@@ -121,42 +123,19 @@ def get_channels_videos_list(api_key: str, channel_id: str, index_tags=False) ->
     return videos, total_requests
 
 
-def parse_channels_arguments() -> dict:
-    """Parse arguments and returns the list of channels."""
-    # New index found if true, next iteration
-    # the name of the index will be get
-    new_index = False
+def parse_channels(file: str) -> dict:
+    """Parse the channels file and returns the list."""
+    try:
+        content = toml.load(file)
+    except FileNotFoundError:
+        print(color("The file \"%s\" doesn't exist." % file, style.RED))
+        exit()
+    except TomlDecodeError as err:
+        print(color("Error found decoding the TOML file:", style.RED))
+        print(err)
+        exit()
 
-    # Current index name
-    current_index = ""
-
-    # Store channels to index
-    channels = {}
-
-    # Read arguments
-    for arg in sys.argv[1:]:
-        # Find the argument -i
-        if arg == "-i":
-            new_index = True
-        elif arg == "-t" and current_index != "":
-            channels[current_index]["index_tags"] = True
-        elif new_index:
-            # Store the name of the current MeiliSearch index
-            current_index = arg
-
-            # Create the list with the index name
-            channels[current_index] = {
-                "index_tags": False,
-                "channels_id": []
-            }
-
-            # Reset the new index flag as we found the index name
-            new_index = False
-        elif current_index != "":
-            # Add the channel id to index
-            channels[current_index]["channels_id"].append(arg)
-
-    return channels
+    return content
 
 
 def create_meilisearch_client(address: str,
@@ -186,6 +165,13 @@ if __name__ == "__main__":
         print("Help")
         exit(0)
 
+    # Get the TOML file to parse
+    toml_file = next((el for el in sys.argv if el.endswith(".toml")),
+                     "channels.toml")
+
+    # Parse the channels
+    channels = parse_channels(toml_file)
+
     # Ask API Key if not provideed
     if "-k" not in sys.argv:
         api_key = getpass.getpass(
@@ -205,9 +191,6 @@ if __name__ == "__main__":
     if "-m" in sys.argv:
         client_master_key = sys.argv[sys.argv.index("-m") + 1]
 
-    # Store channels to index
-    channels = parse_channels_arguments()
-
     # Create the instance of MeiliSearch
     client = create_meilisearch_client(client_address, client_master_key)
 
@@ -223,8 +206,8 @@ if __name__ == "__main__":
         if loop_index > 1:
             print()
 
-        channels_id = channel["channels_id"]
-        index_tags = channel["index_tags"]
+        channels_id = channel["channels"]
+        index_tags = channel["tags"]
 
         # Print the current index
         print("Indexing %s." % color(index_name, style.BLUE))
