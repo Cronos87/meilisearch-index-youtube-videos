@@ -20,7 +20,7 @@ By default, YouTube allows **10.000** requests per day.
 
 ## Roadmap
 
-- [ ] Can pass MeiliSearch config from CLI
+- [x] Can pass MeiliSearch config from CLI
 
 ## Buy me a coffee
 

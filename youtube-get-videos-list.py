@@ -4,7 +4,8 @@ import getpass
 from apiclient.discovery import build
 import googleapiclient
 import meilisearch
-import requests
+from meilisearch.errors import MeiliSearchApiError
+from requests.exceptions import MissingSchema
 
 
 class style():
@@ -83,7 +84,7 @@ def get_channels_videos_list(api_key: str, channel_id: str, index_tags=False) ->
         # Format the video information for MeiliSearch
         for video in res['items']:
             # Get the video information
-            video_id = video["id"] if "id" in video else video["snippet"]["resourceId"]["videoId"]
+            video_id = video["id"] if index_tags else video["snippet"]["resourceId"]["videoId"]
             channel_id = video["snippet"]["channelId"]
             channel_title = video["snippet"]["channelTitle"]
             published_date = video["snippet"]["publishedAt"]
@@ -137,7 +138,7 @@ def parse_channels_arguments() -> dict:
         # Find the argument -i
         if arg == "-i":
             new_index = True
-        elif arg == "-t":
+        elif arg == "-t" and current_index != "":
             channels[current_index]["index_tags"] = True
         elif new_index:
             # Store the name of the current MeiliSearch index
@@ -158,10 +159,11 @@ def parse_channels_arguments() -> dict:
     return channels
 
 
-def create_meilisearch_client(address: str) -> meilisearch.Client:
+def create_meilisearch_client(address: str,
+                              master_key="") -> meilisearch.Client:
     """Create and returns the instance of MeiliSearch."""
     # Create the instance of MeiliSearch
-    client = meilisearch.Client(address)
+    client = meilisearch.Client(address, master_key)
 
     # Check if the MeiliSearch server is running
     try:
@@ -170,7 +172,7 @@ def create_meilisearch_client(address: str) -> meilisearch.Client:
         print(color("No MeiliSearch server is running at the address \"%s\"."
                     % address, style.RED))
         exit()
-    except requests.exceptions.MissingSchema as err:
+    except MissingSchema as err:
         print(color(err, style.RED))
         exit()
 
@@ -197,11 +199,17 @@ if __name__ == "__main__":
     if "-c" in sys.argv:
         client_address = sys.argv[sys.argv.index("-c") + 1]
 
+    # Get MeiliSearch master key
+    client_master_key = ""
+
+    if "-m" in sys.argv:
+        client_master_key = sys.argv[sys.argv.index("-m") + 1]
+
     # Store channels to index
     channels = parse_channels_arguments()
 
     # Create the instance of MeiliSearch
-    client = create_meilisearch_client(client_address)
+    client = create_meilisearch_client(client_address, client_master_key)
 
     # Store the total of requests made to the Youtube API
     total_requests = 0
