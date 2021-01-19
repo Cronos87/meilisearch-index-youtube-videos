@@ -28,7 +28,9 @@ def color(content: str, color: style) -> str:
     return "%s%s%s" % (color, content, style.RESET)
 
 
-def get_channels_videos_list(api_key: str, channel_id: str, index_tags=False) -> list:
+def get_channels_videos_list(api_key: str,
+                             channel_id: str,
+                             index_tags=False) -> list:
     """Get channels videos list from a channel id."""
     # Create an instance of youtube api
     try:
@@ -42,7 +44,8 @@ def get_channels_videos_list(api_key: str, channel_id: str, index_tags=False) ->
                  .execute()
 
     # Get the playlist id
-    playlist_id = res['items'][0]['contentDetails']['relatedPlaylists']['uploads']
+    playlist_id = (res['items'][0]['contentDetails']
+                      ['relatedPlaylists']['uploads'])
 
     # Create an variable to store all videos
     videos = []
@@ -86,13 +89,15 @@ def get_channels_videos_list(api_key: str, channel_id: str, index_tags=False) ->
         # Format the video information for MeiliSearch
         for video in res['items']:
             # Get the video information
-            video_id = video["id"] if index_tags else video["snippet"]["resourceId"]["videoId"]
+            video_id = video["id"] if index_tags else \
+                video["snippet"]["resourceId"]["videoId"]
             channel_id = video["snippet"]["channelId"]
             channel_title = video["snippet"]["channelTitle"]
             published_date = video["snippet"]["publishedAt"]
             title = video["snippet"]["title"]
             description = video["snippet"]["description"]
-            tags = video["snippet"]["tags"] if "tags" in video["snippet"] else []
+            tags = video["snippet"]["tags"] if "tags" in video["snippet"] \
+                else []
             thumbnail_url = video["snippet"]["thumbnails"]["high"]["url"]
             link = "https://www.youtube.com/watch?v=%s" % video_id
 
@@ -227,7 +232,8 @@ if __name__ == "__main__":
         # Loop over all channels and index videos
         for index, channel_id in enumerate(channels_id):
             # Print progression
-            print("Get %d/%d channels." % (index + 1, len(channels_id)), end="\r")
+            print("Get %d/%d channels." % (index + 1, len(channels_id)),
+                  end="\r")
 
             # Get the videos of the channel
             channel_videos, channel_total_requests = \
