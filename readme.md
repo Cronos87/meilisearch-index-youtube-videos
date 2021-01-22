@@ -18,6 +18,7 @@ Here is an example of how to use it:
 
 ```toml
 [unity-youtube-videos-en]
+name = "Unity YouTube Videos EN"
 channels = [
     "UCYbK_tjZ2OrIZFBvU6CCMiA", # Brackeys
     "UCFK6NCbuCIVzA6Yj1G_ZqCg", # Code Monkey
@@ -25,6 +26,7 @@ channels = [
 tags = true
 
 [unity-youtube-videos-fr]
+name = "Unity YouTube Videos FR"
 channels = [
     "UCJRwb5W4ZzG43J5_dViL6Fw" # TUTO UNITY FR
 ]
