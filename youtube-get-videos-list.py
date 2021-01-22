@@ -206,19 +206,31 @@ if __name__ == "__main__":
     loop_index = 1
 
     # Loop over indexes with channels id and index the channels
-    for index_name, channel in channels.items():
+    for index_uid, channel in channels.items():
         # Add a new line to delimit the indexes
         if loop_index > 1:
             print()
 
-        channels_id = channel["channels"]
-        index_tags = channel["tags"]
+        # Get not mandatories fields
+        index_name = channel["name"] if "name" in channel else index_uid
+        index_tags = channel["tags"] if "tags" in channel else False
 
         # Print the current index
         print("Indexing %s." % color(index_name, style.BLUE))
 
+        # Check mandatories fields
+        if "channels" not in channel:
+            print(color("The field \"channels\" is required. Skipping...",
+                        style.RED))
+            continue
+
+        # Get mandatories fields
+        channels_id = channel["channels"]
+
         # Get the index
-        meilisearch_index = client.get_or_create_index(index_name)
+        meilisearch_index = client.get_or_create_index(index_uid, {
+            "name": index_name
+        })
 
         # Delete all documents
         response = meilisearch_index.delete_all_documents()
