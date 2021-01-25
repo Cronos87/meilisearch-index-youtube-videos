@@ -20,8 +20,8 @@ Here is an example of how to use it:
 [unity-youtube-videos-en]
 name = "Unity YouTube Videos EN"
 channels = [
-    "UCYbK_tjZ2OrIZFBvU6CCMiA", # Brackeys
-    "UCFK6NCbuCIVzA6Yj1G_ZqCg", # Code Monkey
+    { id = "UCYbK_tjZ2OrIZFBvU6CCMiA" }, # Brackeys
+    { id = "UCFK6NCbuCIVzA6Yj1G_ZqCg", filters = ["unity", "..."] }, # Code Monkey
 ]
 tags = true
 

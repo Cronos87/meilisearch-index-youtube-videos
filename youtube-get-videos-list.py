@@ -29,7 +29,7 @@ def color(content: str, color: style) -> str:
 
 
 def get_channels_videos_list(api_key: str,
-                             channel_id: str,
+                             channel,
                              index_tags=False) -> list:
     """Get channels videos list from a channel id."""
     # Create an instance of youtube api
@@ -38,6 +38,10 @@ def get_channels_videos_list(api_key: str,
     except googleapiclient.errors.HttpError:
         print(color("The provided Youtube API Key is not valid.", style.RED))
         exit()
+
+    # Get the channel id and filters
+    channel_id = channel["id"]
+    filters = channel["filters"] if "filters" in channel else None
 
     # Call the API to retrieve the playlist id
     res = youtube.channels().list(id=channel_id, part="contentDetails") \
@@ -112,6 +116,47 @@ def get_channels_videos_list(api_key: str,
                 "link": link,
                 "thumbnail": thumbnail_url
             }
+
+            # Apply filters
+            # TODO: Move it into a function
+            if filters is not None:
+                # Flag if the video had the requirements
+                found = True
+
+                # Loop over all filters
+                for filter_el in filters:
+                    # Make the string as lowercase
+                    filter_el = filter_el.lower()
+
+                    # Check if its a strict mode
+                    check_title = True
+                    check_tags = True
+
+                    if (filter_el.startswith("title:") or filter_el.startswith("tags:")):
+                        check_title = filter_el.startswith("title:")
+                        check_tags = filter_el.startswith("tags:")
+
+                        # Find the filter element by removing the strict mode
+                        # example: title:movie -> movie
+                        filter_el = filter_el.split(":", maxsplit=1)[-1]
+
+                    # Try to find the filter in the video title
+                    if check_title:
+                        found = filter_el in item["title"].lower()
+
+                    # Try to find the filter in the video tags
+                    if check_tags:
+                        for tag in item["tags"]:
+                            found = filter_el == tag.lower()
+
+                            # Stop here when found one occurrence
+                            if found:
+                                break
+
+                # If the video doesn't fit the requirements,
+                # continue to the next video
+                if found is False:
+                    continue
 
             # Remove the key tags if tags are not indexed
             if index_tags is False:
@@ -242,7 +287,7 @@ if __name__ == "__main__":
         videos = []
 
         # Loop over all channels and index videos
-        for index, channel_id in enumerate(channels_id):
+        for index, channel in enumerate(channels_id):
             # Print progression
             print("Get %d/%d channels." % (index + 1, len(channels_id)),
                   end="\r")
@@ -250,7 +295,7 @@ if __name__ == "__main__":
             # Get the videos of the channel
             channel_videos, channel_total_requests = \
                 get_channels_videos_list(api_key=api_key,
-                                         channel_id=channel_id,
+                                         channel=channel,
                                          index_tags=index_tags)
 
             # Concatenate channel videos with all videos
