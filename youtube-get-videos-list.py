@@ -50,6 +50,11 @@ def get_channels_videos_list(api_key: str,
     res = youtube.channels().list(id=channel_id, part="contentDetails") \
                  .execute()
 
+    # Check if the channel id exists by checking
+    # if items has been fetched from the api
+    if "items" not in res:
+        return None, [], 0
+
     # Get the playlist id
     playlist_id = (res['items'][0]['contentDetails']
                       ['relatedPlaylists']['uploads'])
@@ -314,7 +319,10 @@ if __name__ == "__main__":
             # Print the channel title
             print("\x1b[2K", end="\r")
 
-            if len(channel_videos) > 0:
+            if channel_title is None:
+                print(color("The channel \"%s\" doesn't exist..." %
+                      channel["id"], style.RED))
+            elif len(channel_videos) > 0:
                 print(color("%s: OK!" % channel_title, style.GREEN))
             else:
                 print(color("%s: No video found..." % channel_title,
