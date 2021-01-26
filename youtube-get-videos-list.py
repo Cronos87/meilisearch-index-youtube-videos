@@ -43,6 +43,9 @@ def get_channels_videos_list(api_key: str,
     channel_id = channel["id"]
     filters = channel["filters"] if "filters" in channel else None
 
+    # Store the channel name
+    channel_title = ""
+
     # Call the API to retrieve the playlist id
     res = youtube.channels().list(id=channel_id, part="contentDetails") \
                  .execute()
@@ -74,6 +77,10 @@ def get_channels_videos_list(api_key: str,
 
         # Store the next page token
         next_page_token = res.get('nextPageToken')
+
+        # Get the channel's title
+        if channel_title == "":
+            channel_title = res["items"][0]["snippet"]["channelTitle"]
 
         # Get all videos id
         videos_id = [video["snippet"]["resourceId"]["videoId"]
@@ -170,7 +177,7 @@ def get_channels_videos_list(api_key: str,
         if next_page_token is None:
             break
 
-    return videos, total_requests
+    return channel_title, videos, total_requests
 
 
 def parse_channels(file: str) -> dict:
@@ -293,7 +300,7 @@ if __name__ == "__main__":
                   end="\r")
 
             # Get the videos of the channel
-            channel_videos, channel_total_requests = \
+            channel_title, channel_videos, channel_total_requests = \
                 get_channels_videos_list(api_key=api_key,
                                          channel=channel,
                                          index_tags=index_tags)
@@ -306,7 +313,12 @@ if __name__ == "__main__":
 
             # Print the channel title
             print("\x1b[2K", end="\r")
-            print(color("%s: OK!" % videos[-1]["channel_title"], style.GREEN))
+
+            if len(channel_videos) > 0:
+                print(color("%s: OK!" % channel_title, style.GREEN))
+            else:
+                print(color("%s: No video found..." % channel_title,
+                      style.RED))
 
         # Store the total of videos of the current index
         index_total_videos = len(videos)
@@ -326,7 +338,8 @@ if __name__ == "__main__":
             # Wait until it has been indexed
             meilisearch_index.wait_for_pending_update(response["updateId"])
 
-        print()
+        if index_total_videos > 0:
+            print()
 
         # Incremente the loop index
         loop_index = loop_index + 1
