@@ -1,9 +1,11 @@
 import sys
+import argparse
 import math
 import getpass
 from apiclient.discovery import build
 import googleapiclient
 import meilisearch
+from meilisearch.index import Index
 from meilisearch.errors import MeiliSearchApiError
 from requests.exceptions import MissingSchema
 import toml
@@ -26,6 +28,30 @@ def chunks(lst, n):
 def color(content: str, color: style) -> str:
     """Returns the content colored in the given color."""
     return "%s%s%s" % (color, content, style.RESET)
+
+
+def parse_cli_arguments():
+    """
+    Parse CLI arguments.
+
+    Returns
+    -------
+    parse_args: parse_args
+        CLI arguments parsed by the native module argparse.
+    """
+    parser = argparse.ArgumentParser(
+        description="Index YouTube videos into MeiliSearch.")
+    parser.add_argument("-k", metavar="--youtube-key", help="YouTube API Key")
+    parser.add_argument("-c", default="http://127.0.0.1:7700",
+                        metavar="--client-address",
+                        help="MeiliSearch Client Address \
+                        (default: http://127.0.0.1:7700)")
+    parser.add_argument("-m", metavar="--master-key",
+                        help="MeiliSearch Master Key")
+    parser.add_argument("channel_file", metavar="channel file", type=str,
+                        help="the channel TOML file to parse")
+
+    return parser.parse_args()
 
 
 def get_channels_videos_list(api_key: str,
@@ -220,41 +246,55 @@ def create_meilisearch_client(address: str,
     return client
 
 
-if __name__ == "__main__":
-    # Print help if no arguments provided or
-    # if the argument -h is provided
-    if len(sys.argv) == 1 or "-h" in sys.argv or "--help" in sys.argv:
-        print("Help")
-        exit(0)
+def index_videos(meilisearch_index: Index, videos: list[dict]):
+    """
+    Index videos to the given index.
 
-    # Get the TOML file to parse
-    toml_file = next((el for el in sys.argv if el.endswith(".toml")),
-                     "channels.toml")
+    Params
+    ------
+    meilisearch_index: Index
+        MeiliSearch Index instance.
+    videos: list[dict]
+        Videos list to index to MeiliSearch.
+    """
+    # Store the total of videos of the current index
+    index_total_videos = len(videos)
+
+    # Store the chunk number
+    chunk_pieces_number = 100
+
+    # Index all videos in MeiliSearch
+    for index, videos in enumerate(chunks(videos, chunk_pieces_number)):
+        # Print progression
+        print("%d/%d indexed." % (min((index + 1) * chunk_pieces_number,
+              index_total_videos), index_total_videos), end="\r")
+
+        # Index videos
+        response = meilisearch_index.add_documents(videos)
+
+        # Wait until it has been indexed
+        meilisearch_index.wait_for_pending_update(response["updateId"])
+
+    if index_total_videos > 0:
+        print()
+
+
+if __name__ == "__main__":
+    # Get CLI arguments
+    args = parse_cli_arguments()
 
     # Parse the channels
-    channels = parse_channels(toml_file)
+    channels = parse_channels(args.channel_file)
 
     # Ask API Key if not provideed
-    if "-k" not in sys.argv:
+    api_key = args.k
+
+    if api_key is None:
         api_key = getpass.getpass(
             prompt='Please, provid your Youtube API Key: ')
-    else:
-        api_key = sys.argv[sys.argv.index("-k") + 1]
-
-    # Get MeiliSearch client address
-    client_address = "http://127.0.0.1:7700"
-
-    if "-c" in sys.argv:
-        client_address = sys.argv[sys.argv.index("-c") + 1]
-
-    # Get MeiliSearch master key
-    client_master_key = ""
-
-    if "-m" in sys.argv:
-        client_master_key = sys.argv[sys.argv.index("-m") + 1]
 
     # Create the instance of MeiliSearch
-    client = create_meilisearch_client(client_address, client_master_key)
+    client = create_meilisearch_client(args.c, args.m)
 
     # Store the total of requests made to the Youtube API
     total_requests = 0
@@ -328,26 +368,8 @@ if __name__ == "__main__":
                 print(color("%s: No video found..." % channel_title,
                       style.RED))
 
-        # Store the total of videos of the current index
-        index_total_videos = len(videos)
-
-        # Store the chunk number
-        chunk_pieces_number = 100
-
-        # Index all videos in MeiliSearch
-        for index, videos in enumerate(chunks(videos, chunk_pieces_number)):
-            # Print progression
-            print("%d/%d indexed." % (min((index + 1) * chunk_pieces_number,
-                  index_total_videos), index_total_videos), end="\r")
-
-            # Index videos
-            response = meilisearch_index.add_documents(videos)
-
-            # Wait until it has been indexed
-            meilisearch_index.wait_for_pending_update(response["updateId"])
-
-        if index_total_videos > 0:
-            print()
+        # Index the videos
+        index_videos(meilisearch_index, videos)
 
         # Incremente the loop index
         loop_index = loop_index + 1
