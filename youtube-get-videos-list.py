@@ -363,7 +363,15 @@ if __name__ == "__main__":
                 print(color("The channel \"%s\" doesn't exist..." %
                       channel["id"], style.RED))
             elif len(channel_videos) > 0:
-                print(color("%s: OK!" % channel_title, style.GREEN))
+                # TODO: Find a better name for this variable :)
+                s = ""
+
+                if "filters" in channel:
+                    filters = channel["filters"]
+                    filter_word = "filter" if len(filters) == 0 else "filters"
+                    s = " (with %s: %s)" % (filter_word, ", ".join(filters))
+
+                print(color("%s: OK!%s" % (channel_title, s), style.GREEN))
             else:
                 print(color("%s: No video found..." % channel_title,
                       style.RED))
