@@ -44,7 +44,7 @@ Note that by default, YouTube allows **10.000** requests per day.
 ### Available properties
 
 tags: Boolean. Tell the script to get the videos tags.
-enable: Boolean. Can enable or disable the indexation of the index.
+disabled: Boolean. Can enable or disable the indexation of the index.
 
 ### Run the script
 
@@ -62,7 +62,7 @@ The argument `-k` can be omitted, but the shell will ask you to enter your YouTu
 
 ## Roadmap
 
-- [ ] Use Python native argparse
+- [x] Use Python native argparse
 - [x] Can pass MeiliSearch config from CLI
 
 ## Buy me a coffee

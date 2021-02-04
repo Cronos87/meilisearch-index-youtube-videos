@@ -307,7 +307,7 @@ if __name__ == "__main__":
     # Loop over indexes and index the channels
     for index_uid, channel in channels.items():
         # Check if the index has been disabled
-        if "enable" in channel and channel["enable"] is False:
+        if "disabled" in channel and channel["disabled"] is True:
             continue
 
         # Add a new line to delimit the indexes
