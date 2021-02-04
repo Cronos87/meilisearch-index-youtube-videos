@@ -273,7 +273,9 @@ def index_videos(meilisearch_index: Index, videos: list[dict]):
         response = meilisearch_index.add_documents(videos)
 
         # Wait until it has been indexed
-        meilisearch_index.wait_for_pending_update(response["updateId"])
+        meilisearch_index.wait_for_pending_update(response["updateId"],
+                                                  timeout_in_ms=20000,
+                                                  interval_in_ms=200)
 
     if index_total_videos > 0:
         print()
