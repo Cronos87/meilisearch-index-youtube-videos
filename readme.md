@@ -41,6 +41,11 @@ Setting tags to true will double the number of requests to the YouTube API.
 
 Note that by default, YouTube allows **10.000** requests per day.
 
+### Available properties
+
+tags: Boolean. Tell the script to get the videos tags.
+enable: Boolean. Can enable or disable the indexation of the index.
+
 ### Run the script
 
 Run the following command to start indexing channels into your MeiliSearch instance:

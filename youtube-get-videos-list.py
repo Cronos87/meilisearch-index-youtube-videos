@@ -304,8 +304,12 @@ if __name__ == "__main__":
     # Store the current index of the loop
     loop_index = 1
 
-    # Loop over indexes with channels id and index the channels
+    # Loop over indexes and index the channels
     for index_uid, channel in channels.items():
+        # Check if the index has been disabled
+        if "enable" in channel and channel["enable"] is False:
+            continue
+
         # Add a new line to delimit the indexes
         if loop_index > 1:
             print()
