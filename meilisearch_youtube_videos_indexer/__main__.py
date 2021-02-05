@@ -1,3 +1,3 @@
-from meilisearch_youtube_videos_indexation import main
+from meilisearch_youtube_videos_indexer import main
 
 main()
