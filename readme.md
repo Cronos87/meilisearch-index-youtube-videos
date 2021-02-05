@@ -43,10 +43,10 @@ Note that by default, YouTube allows **10.000** requests per day.
 
 ### Available properties
 
-name: str. Name of the index. Can be any character.
-channels: { id: int, ?filters: list[str], ?disabled: boolean }. Channels to index.
-tags: boolean. Tell the script to get the videos tags.
-disabled: boolean. Can enable or disable the indexation of the index.
+`name: str.` Name of the index. Can be any character.  
+`channels: { id: int, ?filters: list[str], ?disabled: boolean }.` Channels to index.  
+`tags: boolean.` Tell the script to get the videos tags.  
+`disabled: boolean.` Can enable or disable the indexation of the index.
 
 ### Run the script
 
