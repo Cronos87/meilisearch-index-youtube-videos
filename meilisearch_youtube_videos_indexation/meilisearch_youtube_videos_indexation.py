@@ -281,7 +281,7 @@ def index_videos(meilisearch_index: Index, videos: list[dict]):
         print()
 
 
-if __name__ == "__main__":
+def main():
     # Get CLI arguments
     args = parse_cli_arguments()
 
@@ -401,3 +401,7 @@ if __name__ == "__main__":
     # Display the total of requests
     print("\nYou made %s requests to the YouTube API." %
           color(total_requests, style.BLUE))
+
+
+if __name__ == "__main__":
+    main()
