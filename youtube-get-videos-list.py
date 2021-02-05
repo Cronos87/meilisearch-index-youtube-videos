@@ -314,6 +314,9 @@ if __name__ == "__main__":
         if loop_index > 1:
             print()
 
+        # Incremente the loop index
+        loop_index = loop_index + 1
+
         # Get not mandatories fields
         index_name = channel["name"] if "name" in channel else index_uid
         index_tags = channel["tags"] if "tags" in channel else False
@@ -328,7 +331,17 @@ if __name__ == "__main__":
             continue
 
         # Get mandatories fields
-        channels_id = channel["channels"]
+        channels = channel["channels"]
+
+        # Remove disabled channels
+        channels = list(filter(lambda c: "disabled" not in c, channels))
+
+        # If no channels found, print a message and proceed to the
+        # next index
+        if len(channels) == 0:
+            print(color("No channels found, or they are all disabled.",
+                        style.RED))
+            continue
 
         # Get the index
         meilisearch_index = client.get_or_create_index(index_uid, {
@@ -345,9 +358,9 @@ if __name__ == "__main__":
         videos = []
 
         # Loop over all channels and index videos
-        for index, channel in enumerate(channels_id):
+        for index, channel in enumerate(channels):
             # Print progression
-            print("Get %d/%d channels." % (index + 1, len(channels_id)),
+            print("Get %d/%d channels." % (index + 1, len(channels)),
                   end="\r")
 
             # Get the videos of the channel
@@ -384,9 +397,6 @@ if __name__ == "__main__":
 
         # Index the videos
         index_videos(meilisearch_index, videos)
-
-        # Incremente the loop index
-        loop_index = loop_index + 1
 
     # Display the total of requests
     print("\nYou made %s requests to the YouTube API." %
