@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 import sys
 import argparse
 import math
@@ -10,6 +11,8 @@ from meilisearch.errors import MeiliSearchApiError
 from requests.exceptions import MissingSchema
 import toml
 from toml.decoder import TomlDecodeError
+
+__version__ = "1.0.0"
 
 
 class style():
