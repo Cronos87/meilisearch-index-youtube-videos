@@ -28,7 +28,7 @@ tags = true
 [unity-youtube-videos-fr]
 name = "Unity YouTube Videos FR"
 channels = [
-    "UCJRwb5W4ZzG43J5_dViL6Fw" # TUTO UNITY FR
+    { id = "UCJRwb5W4ZzG43J5_dViL6Fw" } # TUTO UNITY FR
 ]
 tags = true
 ```
