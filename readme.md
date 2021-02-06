@@ -2,6 +2,8 @@
 
 This tool will index all videos of one or multiple YouTube channels into [MeiliSearch](https://www.meilisearch.com).
 
+![Demo](images/demo.gif)
+
 ## Installation
 
 Download or clone this repository. Then run the following command to install dependencies:
