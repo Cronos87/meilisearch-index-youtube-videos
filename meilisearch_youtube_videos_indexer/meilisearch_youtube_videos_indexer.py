@@ -12,6 +12,9 @@ from requests.exceptions import MissingSchema
 import toml
 from toml.decoder import TomlDecodeError
 
+if sys.version_info >= (3, 5) and sys.version_info <= (3, 8):
+    from typing import List as list
+
 __version__ = "1.0.0"
 
 

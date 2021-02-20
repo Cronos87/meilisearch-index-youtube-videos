@@ -64,6 +64,10 @@ The client's address must follow the pattern "http[s]://ip:port".
 
 The argument `-k` can be omitted, but the shell will ask you to enter your YouTube API key.
 
+## Versions
+
+Tested on Python versions `3.7` and more.
+
 ## Roadmap
 
 - [x] Use Python native argparse
