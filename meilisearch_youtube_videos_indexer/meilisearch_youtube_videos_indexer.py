@@ -3,6 +3,7 @@ import sys
 import argparse
 import math
 import getpass
+from typing import List
 from apiclient.discovery import build
 import googleapiclient
 import meilisearch
@@ -11,9 +12,6 @@ from meilisearch.errors import MeiliSearchApiError
 from requests.exceptions import MissingSchema
 import toml
 from toml.decoder import TomlDecodeError
-
-if sys.version_info >= (3, 5) and sys.version_info <= (3, 8):
-    from typing import List as list
 
 __version__ = "1.0.0"
 
@@ -252,7 +250,7 @@ def create_meilisearch_client(address: str,
     return client
 
 
-def index_videos(meilisearch_index: Index, videos: list[dict]):
+def index_videos(meilisearch_index: Index, videos: List[dict]):
     """
     Index videos to the given index.
 
@@ -260,7 +258,7 @@ def index_videos(meilisearch_index: Index, videos: list[dict]):
     ------
     meilisearch_index: Index
         MeiliSearch Index instance.
-    videos: list[dict]
+    videos: List[dict]
         Videos list to index to MeiliSearch.
     """
     # Store the total of videos of the current index
